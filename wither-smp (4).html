@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WITHER SMP – SEASON 1 | RANK STORE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Firebase loaded in HEAD — must be here so firebase is defined before body scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<style>
+:root{--black:#0a0a0a;--dark:#111;--card:#161616;--border:#2a2a2a;--orange:#ff6a00;--orange2:#ff9500;--red:#cc0000;--gold:#ffd700;--white:#f0f0f0;--gray:#888;--success:#00cc66;--danger:#ff3333;--discord:#5865F2;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,106,0,0.12),transparent);pointer-events:none;z-index:0;}
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:2px;height:2px;background:var(--orange);border-radius:50%;animation:float linear infinite;opacity:0;}
+@keyframes float{0%{transform:translateY(100vh) rotate(0);opacity:1;}100%{transform:translateY(-20px) rotate(720deg);opacity:0;}}
+@keyframes pulse{0%,100%{text-shadow:0 0 20px rgba(255,106,0,0.5);}50%{text-shadow:0 0 40px rgba(255,106,0,0.9),0 0 60px rgba(255,106,0,0.4);}}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* BOOT */
+#boot{position:fixed;inset:0;background:#0a0a0a;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+#boot .skull{font-size:3.5rem;animation:pulse 1.2s infinite;}
+#boot h1{font-family:'Cinzel Decorative',serif;color:var(--orange);font-size:1.6rem;letter-spacing:3px;}
+#boot p{color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:2px;font-size:.9rem;}
+.boot-bar-wrap{width:220px;height:3px;background:#1a1a1a;border-radius:2px;overflow:hidden;margin-top:.5rem;}
+#bootBar{height:100%;background:linear-gradient(90deg,var(--orange),var(--gold));width:0%;transition:width .3s;}
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--border);backdrop-filter:blur(10px);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1.05rem;color:var(--orange);text-shadow:0 0 20px rgba(255,106,0,0.5);letter-spacing:2px;cursor:pointer;}
+.nav-logo span{color:var(--gold);}
+.nav-links{display:flex;gap:1.5rem;align-items:center;}
+.nav-links a{color:var(--gray);text-decoration:none;font-weight:600;font-size:.88rem;letter-spacing:1px;transition:.2s;cursor:pointer;}
+.nav-links a:hover{color:var(--orange);}
+.nav-user{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.2rem;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:1px;cursor:pointer;border:none;transition:.2s;text-decoration:none;}
+.btn-orange{background:linear-gradient(135deg,var(--orange),var(--orange2));color:#000;}
+.btn-orange:hover{filter:brightness(1.15);transform:translateY(-1px);}
+.btn-outline{background:transparent;border:1px solid var(--orange);color:var(--orange);}
+.btn-outline:hover{background:rgba(255,106,0,0.1);}
+.btn-dark{background:var(--card);border:1px solid var(--border);color:var(--white);}
+.btn-dark:hover{border-color:var(--orange);color:var(--orange);}
+.btn-sm{padding:.3rem .8rem;font-size:.8rem;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-success{background:var(--success);color:#000;}
+.btn-discord{background:var(--discord);color:#fff;}
+.btn-discord:hover{filter:brightness(1.15);transform:translateY(-1px);}
+.btn-google{background:#fff;color:#333;border:1px solid #ddd;gap:.5rem;}
+.btn-google:hover{background:#f5f5f5;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;filter:none!important;}
+/* PAGES */
+.page{display:none;min-height:calc(100vh - 60px);position:relative;z-index:1;}
+.page.active{display:block;}
+/* HERO */
+.hero{text-align:center;padding:5rem 1rem 3rem;}
+.hero-skull{font-size:4rem;animation:pulse 2s ease-in-out infinite;}
+.hero h1{font-family:'Cinzel Decorative',serif;font-size:clamp(1.8rem,5vw,3.5rem);color:var(--orange);text-shadow:0 0 30px rgba(255,106,0,0.5);line-height:1.2;margin:.5rem 0;}
+.hero h1 span{color:var(--gold);}
+.hero-subtitle{font-family:'Cinzel',serif;font-size:1rem;letter-spacing:4px;color:var(--gray);margin:.5rem 0 1rem;}
+.hero-divider{width:400px;max-width:90%;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);margin:1.5rem auto;}
+.hero-quote{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--white);letter-spacing:2px;}
+.hero-quote span{color:var(--orange);}
+.season-badge{display:inline-block;background:linear-gradient(135deg,rgba(255,106,0,0.2),rgba(255,149,0,0.1));border:1px solid var(--orange);border-radius:4px;padding:.3rem 1rem;font-size:.85rem;letter-spacing:3px;color:var(--orange);margin-bottom:1rem;font-family:'Cinzel',serif;}
+/* SERVER INFO BAR */
+.server-bar{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap;padding:1rem 2rem;background:rgba(255,106,0,0.05);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:2rem;}
+.server-info-item{display:flex;align-items:center;gap:.5rem;font-family:'Cinzel',serif;font-size:.9rem;}
+.server-info-item .label{color:var(--gray);font-size:.75rem;letter-spacing:2px;}
+.server-info-item .value{color:var(--orange);font-weight:700;font-size:1rem;cursor:pointer;transition:.2s;}
+.server-info-item .value:hover{color:var(--gold);}
+.copy-badge{font-size:.65rem;background:rgba(255,106,0,0.2);color:var(--orange);border:1px solid var(--orange);border-radius:3px;padding:.1rem .4rem;margin-left:.3rem;cursor:pointer;transition:.2s;}
+.copy-badge:hover{background:var(--orange);color:#000;}
+/* RANKS */
+.ranks-section{padding:2rem;max-width:1400px;margin:0 auto;}
+.section-title{font-family:'Cinzel',serif;font-size:1.2rem;color:var(--orange);margin-bottom:1rem;}
+.ranks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;margin-top:2rem;}
+.rank-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:.3s;position:relative;cursor:pointer;}
+.rank-card:hover{transform:translateY(-4px);border-color:var(--orange);box-shadow:0 0 30px rgba(255,106,0,0.15);}
+.rank-card.featured{border-color:var(--gold);}
+.rank-card.featured::before{content:'POPULAR';position:absolute;top:12px;right:-25px;background:var(--gold);color:#000;font-size:.6rem;font-weight:900;letter-spacing:2px;padding:.2rem 2.5rem;transform:rotate(35deg);z-index:2;}
+.rank-header{padding:1.2rem;text-align:center;}
+.rank-icon{font-size:2.5rem;margin-bottom:.5rem;}
+.rank-name{font-family:'Cinzel',serif;font-size:1.3rem;font-weight:700;letter-spacing:3px;}
+.rank-tagline{font-size:.8rem;letter-spacing:2px;color:var(--gray);margin:.2rem 0 .5rem;}
+.rank-price{font-size:2rem;font-weight:900;color:var(--orange);}
+.rank-body{padding:1rem 1.2rem;border-top:1px solid var(--border);}
+.rank-perks{list-style:none;margin-bottom:1rem;}
+.rank-perks li{display:flex;gap:.5rem;align-items:flex-start;padding:.3rem 0;font-size:.9rem;border-bottom:1px solid rgba(255,255,255,0.03);}
+.rank-perks li:last-child{border:none;}
+.perk-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+.chat-tag{display:inline-block;border-radius:3px;padding:.2rem .6rem;font-size:.75rem;font-weight:700;letter-spacing:2px;margin-top:.5rem;}
+.rank-footer{padding:.8rem 1.2rem;border-top:1px solid var(--border);}
+.rank-vip .rank-header{background:linear-gradient(135deg,rgba(30,100,200,0.2),transparent);}
+.rank-vip .rank-name{color:#60a5fa;}
+.rank-vip .chat-tag{background:rgba(96,165,250,0.2);color:#60a5fa;border:1px solid #60a5fa;}
+.rank-pro .rank-header{background:linear-gradient(135deg,rgba(255,106,0,0.15),transparent);}
+.rank-pro .rank-name{color:var(--orange);}
+.rank-pro .chat-tag{background:rgba(255,106,0,0.2);color:var(--orange);border:1px solid var(--orange);}
+.rank-boss .rank-header{background:linear-gradient(135deg,rgba(255,215,0,0.15),transparent);}
+.rank-boss .rank-name{color:var(--gold);}
+.rank-boss .chat-tag{background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid var(--gold);}
+.rank-elite .rank-header{background:linear-gradient(135deg,rgba(150,0,200,0.15),transparent);}
+.rank-elite .rank-name{color:#c084fc;}
+.rank-elite .chat-tag{background:rgba(192,132,252,0.2);color:#c084fc;border:1px solid #c084fc;}
+.rank-devil .rank-header{background:linear-gradient(135deg,rgba(200,0,0,0.2),transparent);}
+.rank-devil .rank-name{color:var(--red);}
+.rank-devil .chat-tag{background:rgba(204,0,0,0.2);color:#ff6666;border:1px solid #cc0000;}
+.rank-custom .rank-header{background:linear-gradient(135deg,rgba(0,200,200,0.1),transparent);}
+.rank-custom .rank-name{color:#67e8f9;}
+.rank-custom .chat-tag{background:rgba(103,232,249,0.2);color:#67e8f9;border:1px solid #67e8f9;}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1000;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--dark);border:1px solid var(--border);border-radius:10px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-header h2{font-family:'Cinzel',serif;font-size:1.2rem;color:var(--orange);}
+.modal-close{background:none;border:none;color:var(--gray);font-size:1.5rem;cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--white);}
+.modal-body{padding:1.5rem;}
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:.82rem;color:var(--gray);margin-bottom:.4rem;letter-spacing:1px;font-weight:600;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:.7rem 1rem;color:var(--white);font-family:'Rajdhani',sans-serif;font-size:1rem;transition:.2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--orange);}
+.form-group select option{background:var(--dark);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-note{font-size:.78rem;color:var(--gray);margin-top:.3rem;}
+.alert{padding:.8rem 1rem;border-radius:4px;margin-bottom:1rem;font-size:.88rem;font-weight:600;}
+.alert-success{background:rgba(0,204,102,0.15);border:1px solid var(--success);color:var(--success);}
+.alert-danger{background:rgba(255,51,51,0.15);border:1px solid var(--danger);color:var(--danger);}
+.alert-info{background:rgba(255,106,0,0.1);border:1px solid var(--orange);color:var(--orange);}
+.divider{text-align:center;color:var(--gray);font-size:.8rem;margin:1rem 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border);}
+.divider::before{left:0;}.divider::after{right:0;}
+/* PAYMENT */
+.payment-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1rem;}
+.payment-opt{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.7rem;text-align:center;cursor:pointer;transition:.2s;font-size:.8rem;font-weight:600;}
+.payment-opt:hover,.payment-opt.selected{border-color:var(--orange);background:rgba(255,106,0,0.1);color:var(--orange);}
+.pay-icon{font-size:1.5rem;display:block;margin-bottom:.2rem;}
+.payment-detail-box{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem;margin-top:.5rem;display:none;}
+.payment-detail-box.active{display:block;}
+.upi-id{font-family:monospace;font-size:1rem;color:var(--orange);background:rgba(255,106,0,0.1);padding:.4rem .8rem;border-radius:4px;display:inline-block;margin:.3rem 0;word-break:break-all;}
+/* ORDER SUMMARY */
+.order-summary{background:rgba(255,106,0,0.05);border:1px solid rgba(255,106,0,0.2);border-radius:6px;padding:1rem;margin-bottom:1rem;}
+.order-summary h4{font-family:'Cinzel',serif;font-size:.9rem;color:var(--orange);margin-bottom:.7rem;}
+.order-row{display:flex;justify-content:space-between;font-size:.9rem;padding:.2rem 0;}
+.order-total{font-weight:900;font-size:1.1rem;border-top:1px solid var(--border);padding-top:.5rem;margin-top:.3rem;}
+/* DASHBOARD */
+.dashboard{padding:2rem;max-width:1200px;margin:0 auto;}
+.dash-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;padding:1.5rem;background:var(--card);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;}
+.dash-avatar{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--red));display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;overflow:hidden;}
+.dash-avatar img{width:100%;height:100%;object-fit:cover;}
+.dash-info h2{font-family:'Cinzel',serif;font-size:1.4rem;}
+.dash-info p{color:var(--gray);font-size:.88rem;margin-top:.2rem;}
+.role-badge{display:inline-block;padding:.2rem .7rem;border-radius:3px;font-size:.72rem;font-weight:700;letter-spacing:2px;margin-top:.3rem;}
+.role-owner{background:rgba(255,215,0,0.2);color:var(--gold);border:1px solid var(--gold);}
+.role-dev{background:rgba(255,0,100,0.2);color:#ff6699;border:1px solid #ff6699;}
+.role-mod{background:rgba(0,200,100,0.2);color:#00cc66;border:1px solid #00cc66;}
+.role-member{background:rgba(150,150,150,0.2);color:#aaa;border:1px solid #666;}
+.role-vip{background:rgba(96,165,250,0.2);color:#60a5fa;border:1px solid #60a5fa;}
+.role-pro{background:rgba(255,106,0,0.2);color:var(--orange);border:1px solid var(--orange);}
+.role-boss{background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid var(--gold);}
+.role-elite{background:rgba(192,132,252,0.2);color:#c084fc;border:1px solid #c084fc;}
+.role-devil{background:rgba(204,0,0,0.2);color:#ff4444;border:1px solid #cc0000;}
+.role-custom{background:rgba(103,232,249,0.2);color:#67e8f9;border:1px solid #67e8f9;}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;}
+.dash-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.2rem;}
+.dash-card h3{font-family:'Cinzel',serif;font-size:1rem;color:var(--orange);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+.stat-row{display:flex;justify-content:space-between;padding:.4rem 0;font-size:.88rem;border-bottom:1px solid rgba(255,255,255,0.03);}
+.stat-row:last-child{border:none;}
+.stat-val{color:var(--white);font-weight:700;}
+.welcome-banner{background:linear-gradient(135deg,rgba(255,106,0,0.1),rgba(200,0,0,0.1));border:1px solid var(--orange);border-radius:8px;padding:2rem;text-align:center;margin-bottom:2rem;}
+.welcome-banner h2{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--orange);margin-bottom:.5rem;}
+.welcome-banner p{color:var(--gray);line-height:1.6;}
+.order-card{padding:.8rem 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.order-card:last-child{border:none;}
+/* ADMIN */
+.admin{padding:2rem;max-width:1400px;margin:0 auto;}
+.admin-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.tab-btn{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:.45rem 1rem;color:var(--gray);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;letter-spacing:1px;transition:.2s;}
+.tab-btn:hover,.tab-btn.active{border-color:var(--orange);color:var(--orange);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+table{width:100%;border-collapse:collapse;font-size:.88rem;}
+table th{background:rgba(255,106,0,0.1);color:var(--orange);font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:1px;padding:.7rem 1rem;text-align:left;border-bottom:1px solid var(--border);}
+table td{padding:.65rem 1rem;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+table tr:hover td{background:rgba(255,255,255,0.02);}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;overflow-x:auto;}
+.status-badge{display:inline-block;padding:.15rem .5rem;border-radius:3px;font-size:.72rem;font-weight:700;}
+.status-pending{background:rgba(255,200,0,0.2);color:#ffd700;}
+.status-completed{background:rgba(0,204,102,0.2);color:var(--success);}
+.status-cancelled{background:rgba(255,51,51,0.2);color:var(--danger);}
+.admin-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.admin-stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.2rem;text-align:center;}
+.admin-stat .stat-num{font-family:'Cinzel Decorative',serif;font-size:1.8rem;color:var(--orange);}
+.admin-stat .stat-label{font-size:.72rem;color:var(--gray);letter-spacing:2px;margin-top:.2rem;}
+.section-title{font-family:'Cinzel',serif;font-size:1.2rem;color:var(--orange);margin-bottom:1rem;}
+/* SERVER IP CARD */
+.server-ip-card{background:linear-gradient(135deg,rgba(255,106,0,0.08),rgba(0,0,0,0));border:1px solid var(--orange);border-radius:8px;padding:1.5rem;text-align:center;margin-bottom:1.5rem;}
+.server-ip-card h3{font-family:'Cinzel',serif;color:var(--orange);font-size:1rem;margin-bottom:1rem;}
+.ip-display{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;}
+.ip-box{background:var(--black);border:1px solid var(--border);border-radius:6px;padding:.7rem 1.5rem;font-family:monospace;font-size:1.2rem;color:var(--white);}
+.port-box{background:var(--black);border:1px solid var(--border);border-radius:6px;padding:.7rem 1rem;font-family:monospace;font-size:1.2rem;color:var(--orange);}
+/* TOAST */
+#toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;}
+.toast-item{background:var(--dark);border:1px solid var(--border);border-radius:6px;padding:.8rem 1.2rem;font-size:.88rem;font-weight:600;min-width:240px;animation:slideIn .3s ease;}
+.toast-item.success{border-color:var(--success);color:var(--success);}
+.toast-item.error{border-color:var(--danger);color:var(--danger);}
+.toast-item.info{border-color:var(--orange);color:var(--orange);}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.2);border-top-color:currentColor;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
+.empty-state{text-align:center;padding:2.5rem;color:var(--gray);}
+.loading-row{text-align:center;padding:3rem;color:var(--gray);}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--dark);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--orange);}
+@media(max-width:600px){nav{padding:0 1rem;}.nav-links{display:none;}.form-row{grid-template-columns:1fr;}.payment-grid{grid-template-columns:repeat(2,1fr);}.admin-tabs{gap:.3rem;}.tab-btn{padding:.35rem .6rem;font-size:.76rem;}}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+
+<!-- BOOT -->
+<div id="boot">
+  <div class="skull">☠️</div>
+  <h1>WITHER SMP</h1>
+  <p id="bootMsg">Connecting to server...</p>
+  <div class="boot-bar-wrap"><div id="bootBar"></div></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">🔥 WITHER <span>SMP</span></div>
+  <div class="nav-links">
+    <a onclick="showPage('home')">🏪 Store</a>
+    <a onclick="navDash()">Dashboard</a>
+    <a id="adminNavLink" style="display:none" onclick="navAdmin()">⚙️ Admin</a>
+  </div>
+  <div class="nav-user" id="navUser"></div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-skull">☠️</div>
+    <div class="season-badge">⚔️ SEASON 1 ⚔️</div>
+    <h1>WITHER <span>SMP</span></h1>
+    <div class="hero-subtitle">☠️ 𝐎𝐅𝐅𝐈𝐂𝐈𝐀𝐋 𝐑𝐀𝐍𝐊 𝐒𝐓𝐎𝐑𝐄 ☠️</div>
+    <div class="hero-divider"></div>
+    <div class="hero-quote">⚫ <span>𝐏𝐎𝐖𝐄𝐑 𝐈𝐒 𝐍𝐎𝐓 𝐆𝐈𝐕𝐄𝐍.</span> 🔥 𝐈𝐓 𝐈𝐒 𝐓𝐀𝐊𝐄𝐍.</div>
+    <div class="hero-divider"></div>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
+      <a href="https://discord.gg/3ph3cdsHzV" target="_blank" class="btn btn-discord">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.114 18.102.132 18.116a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Join Discord
+      </a>
+    </div>
+  </div>
+  <!-- SERVER INFO BAR -->
+  <div class="server-bar" id="serverBar">
+    <div class="server-info-item">
+      <span>🖥️</span>
+      <div>
+        <div class="label">SERVER IP</div>
+        <div class="value" id="displayIP" onclick="copyText('displayIP')">Not set by admin</div>
+      </div>
+      <span class="copy-badge" onclick="copyText('displayIP')">COPY</span>
+    </div>
+    <div class="server-info-item">
+      <span>🔌</span>
+      <div>
+        <div class="label">PORT</div>
+        <div class="value" id="displayPort" onclick="copyText('displayPort')">—</div>
+      </div>
+      <span class="copy-badge" onclick="copyText('displayPort')">COPY</span>
+    </div>
+    <div class="server-info-item">
+      <a href="https://discord.gg/3ph3cdsHzV" target="_blank" class="btn btn-discord btn-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.114 18.102.132 18.116a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Discord
+      </a>
+    </div>
+  </div>
+  <div class="ranks-section">
+    <div class="section-title">⚔️ Available Ranks</div>
+    <div class="ranks-grid">
+      <div class="rank-card rank-vip" onclick="openBuy('VIP','39','vip')">
+        <div class="rank-header"><div class="rank-icon">🛡️</div><div class="rank-name">『 VIP 』</div><div class="rank-tagline">⚔️ THE BEGINNING OF POWER</div><div class="rank-price">₹39</div></div>
+        <div class="rank-body"><ul class="rank-perks"><li><span class="perk-icon">🛡️</span>Diamond Armor ➤ Protection III</li><li><span class="perk-icon">⚒️</span>Diamond Tools ➤ Level III Enchants</li><li><span class="perk-icon">🍖</span>3x Royal Food</li><li><span class="perk-icon">🍎</span>16x Golden Apples</li></ul><span class="chat-tag">✦ VIP ✦</span></div>
+        <div class="rank-footer"><button class="btn btn-outline" style="width:100%;justify-content:center">🛒 BUY NOW – ₹39</button></div>
+      </div>
+      <div class="rank-card rank-pro" onclick="openBuy('PRO','139','pro')">
+        <div class="rank-header"><div class="rank-icon">🔥</div><div class="rank-name">『 PRO 』</div><div class="rank-tagline">⚔️ THE WARRIOR</div><div class="rank-price">₹139</div></div>
+        <div class="rank-body"><ul class="rank-perks"><li><span class="perk-icon">🛡️</span>Netherite Armor ➤ Protection IV</li><li><span class="perk-icon">⚔️</span>Netherite Tools ➤ MAX Enchants</li><li><span class="perk-icon">🍖</span>Royal OP Food</li><li><span class="perk-icon">🍎</span>32x Golden Apples</li><li><span class="perk-icon">✨</span>1x Enchanted Golden Apple</li></ul><span class="chat-tag">✦ PRO ✦</span></div>
+        <div class="rank-footer"><button class="btn btn-orange" style="width:100%;justify-content:center">🔥 BUY NOW – ₹139</button></div>
+      </div>
+      <div class="rank-card rank-boss featured" onclick="openBuy('BOSS','150','boss')">
+        <div class="rank-header"><div class="rank-icon">👑</div><div class="rank-name">『 BOSS 』</div><div class="rank-tagline">💀 THE COMMANDER</div><div class="rank-price">₹150</div></div>
+        <div class="rank-body"><ul class="rank-perks"><li><span class="perk-icon">🛡️</span>Netherite Armor ➤ Protection VI + Fire Prot 💀</li><li><span class="perk-icon">⚔️</span>Netherite Tools ➤ MAX Enchants</li><li><span class="perk-icon">🍖</span>Premium Foods</li><li><span class="perk-icon">🍎</span>64x Golden Apples</li><li><span class="perk-icon">✨</span>25x Enchanted Golden Apples</li><li><span class="perk-icon">👑</span>Display Rank Enabled</li></ul><span class="chat-tag">✦ BOSS ✦</span></div>
+        <div class="rank-footer"><button class="btn btn-orange" style="width:100%;justify-content:center;background:linear-gradient(135deg,#b8860b,#ffd700);color:#000;">👑 BUY NOW – ₹150</button></div>
+      </div>
+      <div class="rank-card rank-elite" onclick="openBuy('ELITE','99','elite')">
+        <div class="rank-header"><div class="rank-icon">🌑</div><div class="rank-name">『 ELITE 』</div><div class="rank-tagline">⚫ THE SHADOW KING</div><div class="rank-price">₹99</div></div>
+        <div class="rank-body"><ul class="rank-perks"><li><span class="perk-icon">🛡️</span>Netherite Armor ➤ Protection IV</li><li><span class="perk-icon">⚔️</span>Netherite Tools ➤ MAX Enchants</li><li><span class="perk-icon">🏹</span>MAX Enchanted Bow</li><li><span class="perk-icon">🔱</span>MAX Enchanted Trident</li><li><span class="perk-icon">🍖</span>Overpower Food</li><li><span class="perk-icon">✨</span>16x Enchanted Golden Apples</li></ul><span class="chat-tag">✦ ELITE ✦</span></div>
+        <div class="rank-footer"><button class="btn btn-outline" style="width:100%;justify-content:center;border-color:#c084fc;color:#c084fc;">🌑 BUY NOW – ₹99</button></div>
+      </div>
+      <div class="rank-card rank-devil" onclick="openBuy('DEVIL','200','devil')">
+        <div class="rank-header"><div class="rank-icon">☠️</div><div class="rank-name">『 DEVIL 』</div><div class="rank-tagline">👑 THE FINAL BOSS</div><div class="rank-price">₹200</div></div>
+        <div class="rank-body"><ul class="rank-perks"><li><span class="perk-icon">🛡️</span>Netherite Armor ➤ Protection X</li><li><span class="perk-icon">⚔️</span>Netherite Tools ➤ MAX Enchants</li><li><span class="perk-icon">🔨</span>Enchanted Mace</li><li><span class="perk-icon">🔱</span>Enchanted Trident</li><li><span class="perk-icon">✨</span>32x Enchanted Golden Apples</li><li><span class="perk-icon">🥕</span>Golden Carrots</li></ul><span class="chat-tag">☠️ DEADLIEST ☠️</span></div>
+        <div class="rank-footer"><button class="btn btn-danger" style="width:100%;justify-content:center;">☠️ BUY NOW – ₹200</button></div>
+      </div>
+      <div class="rank-card rank-custom" onclick="openBuy('CUSTOM RANK','280','custom')">
+        <div class="rank-header"><div class="rank-icon">🌌</div><div class="rank-name">『 CUSTOM 』</div><div class="rank-tagline">🖤 UNIQUE • EXCLUSIVE • DIFFERENT</div><div class="rank-price">₹280</div></div>
+        <div class="rank-body"><ul class="rank-perks"><li><span class="perk-icon">✨</span>Any Custom Name Before Your Username</li><li><span class="perk-icon">🚫</span>No Kit Included</li><li><span class="perk-icon">👑</span>Pure Flex Status</li></ul><span class="chat-tag" style="background:rgba(103,232,249,0.2);color:#67e8f9;border:1px solid #67e8f9;">✨ CUSTOM ✨</span></div>
+        <div class="rank-footer"><button class="btn btn-outline" style="width:100%;justify-content:center;border-color:#67e8f9;color:#67e8f9;">🌌 BUY NOW – ₹280</button></div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;padding:3rem 1rem;color:var(--gray);font-family:'Cinzel',serif;font-size:.82rem;letter-spacing:3px;border-top:1px solid var(--border);margin-top:3rem;">🖤🔥 WITHER SMP 🔥🖤 &nbsp;|&nbsp; ⚔️ DOMINATE OR BE DOMINATED ⚔️</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page">
+  <div class="dashboard" id="dashContent"><div class="loading-row"><span class="spinner"></span> Loading...</div></div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <div class="admin">
+    <div class="section-title">⚙️ Admin Panel</div>
+    <div class="admin-stat-grid" id="adminStats"></div>
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-pending')">🔔 Pending</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-allorders')">📋 All Orders</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-users')">👥 All Users</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-roles')">🎭 Roles</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-paysettings')">💳 Payment & Server</button>
+    </div>
+    <div class="tab-content active" id="tab-pending"></div>
+    <div class="tab-content" id="tab-allorders"></div>
+    <div class="tab-content" id="tab-users"></div>
+    <div class="tab-content" id="tab-roles"></div>
+    <div class="tab-content" id="tab-paysettings"></div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-header"><h2>🔥 Login to WITHER SMP</h2><button class="modal-close" onclick="closeModal('loginModal')">×</button></div>
+    <div class="modal-body">
+      <div id="loginAlert"></div>
+      <button class="btn btn-google" style="width:100%;justify-content:center;margin-bottom:.5rem" onclick="doGoogleAuth()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div class="divider">or use email</div>
+      <div class="form-group"><label>USERNAME OR EMAIL</label><input id="loginUser" placeholder="Your username or email" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="form-group"><label>PASSWORD</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn btn-orange" id="loginBtn" style="width:100%;justify-content:center;margin-top:.5rem" onclick="doLogin()">⚔️ LOGIN</button>
+      <div class="divider">or</div>
+      <p style="text-align:center;font-size:.88rem;color:var(--gray)">No account? <a href="#" style="color:var(--orange)" onclick="switchModal('loginModal','registerModal')">Register here</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <div class="modal-header"><h2>☠️ Join WITHER SMP</h2><button class="modal-close" onclick="closeModal('registerModal')">×</button></div>
+    <div class="modal-body">
+      <div id="regAlert"></div>
+      <button class="btn btn-google" style="width:100%;justify-content:center;margin-bottom:.5rem" onclick="doGoogleAuth()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Sign up with Google
+      </button>
+      <div class="divider">or use email</div>
+      <div class="form-row">
+        <div class="form-group"><label>USERNAME</label><input id="regUser" placeholder="YourName"></div>
+        <div class="form-group"><label>MINECRAFT USERNAME</label><input id="regMC" placeholder="MCUsername"></div>
+      </div>
+      <div class="form-group"><label>EMAIL</label><input type="email" id="regEmail" placeholder="you@email.com"></div>
+      <div class="form-group"><label>PASSWORD</label><input type="password" id="regPass" placeholder="••••••••"></div>
+      <div class="form-group"><label>CONFIRM PASSWORD</label><input type="password" id="regPass2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doRegister()"></div>
+      <button class="btn btn-orange" id="regBtn" style="width:100%;justify-content:center;" onclick="doRegister()">🔥 CREATE ACCOUNT</button>
+      <div class="divider">or</div>
+      <p style="text-align:center;font-size:.88rem;color:var(--gray)">Already registered? <a href="#" style="color:var(--orange)" onclick="switchModal('registerModal','loginModal')">Login here</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE MC USERNAME MODAL (shown after google sign in for new users) -->
+<div class="modal-overlay" id="mcModal">
+  <div class="modal">
+    <div class="modal-header"><h2>🎮 One More Step</h2><button class="modal-close" onclick="closeModal('mcModal')">×</button></div>
+    <div class="modal-body">
+      <div id="mcAlert"></div>
+      <p style="color:var(--gray);font-size:.9rem;margin-bottom:1rem">You signed in with Google! We just need your <strong style="color:var(--orange)">Minecraft username</strong> to complete setup.</p>
+      <div class="form-group"><label>MINECRAFT USERNAME</label><input id="googleMC" placeholder="Your in-game Minecraft name" onkeydown="if(event.key==='Enter')finishGoogleSignup()"></div>
+      <button class="btn btn-orange" id="mcBtn" style="width:100%;justify-content:center" onclick="finishGoogleSignup()">⚔️ COMPLETE SETUP</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUY MODAL -->
+<div class="modal-overlay" id="buyModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="buyTitle">🛒 Purchase Rank</h2><button class="modal-close" onclick="closeModal('buyModal')">×</button></div>
+    <div class="modal-body">
+      <div id="buyAlert"></div>
+      <div class="order-summary" id="orderSummary"></div>
+      <div class="form-group"><label>MINECRAFT USERNAME (for delivery)</label><input id="buyMC" placeholder="Your Minecraft username"><div class="form-note">The player who will receive the rank in-game.</div></div>
+      <div class="form-group"><label>SELECT PAYMENT METHOD</label>
+        <div class="payment-grid">
+          <div class="payment-opt" onclick="selPay(this,'gpay')"><span class="pay-icon">📱</span>Google Pay</div>
+          <div class="payment-opt" onclick="selPay(this,'phonepe')"><span class="pay-icon">💜</span>PhonePe</div>
+          <div class="payment-opt" onclick="selPay(this,'paytm')"><span class="pay-icon">🔵</span>Paytm</div>
+          <div class="payment-opt" onclick="selPay(this,'bkash')"><span class="pay-icon">🟠</span>bKash (BD)</div>
+          <div class="payment-opt" onclick="selPay(this,'nagad')"><span class="pay-icon">🔴</span>Nagad (BD)</div>
+          <div class="payment-opt" onclick="selPay(this,'rocket')"><span class="pay-icon">🚀</span>Rocket (BD)</div>
+          <div class="payment-opt" onclick="selPay(this,'paypal')"><span class="pay-icon">🅿️</span>PayPal</div>
+          <div class="payment-opt" onclick="selPay(this,'card')"><span class="pay-icon">💳</span>Card</div>
+          <div class="payment-opt" onclick="selPay(this,'bank')"><span class="pay-icon">🏦</span>Bank</div>
+        </div>
+      </div>
+      <div id="pd-gpay" class="payment-detail-box"><strong>Google Pay</strong><br><div class="form-note" style="margin:.4rem 0">Send to UPI ID:</div><div class="upi-id" id="v-gpay"></div><div class="form-note">Enter Transaction ID below.</div></div>
+      <div id="pd-phonepe" class="payment-detail-box"><strong>PhonePe</strong><br><div class="upi-id" id="v-phonepe"></div></div>
+      <div id="pd-paytm" class="payment-detail-box"><strong>Paytm</strong><br><div class="upi-id" id="v-paytm"></div></div>
+      <div id="pd-bkash" class="payment-detail-box"><strong>bKash (BD)</strong><br><div class="form-note" style="margin:.4rem 0">Send to number:</div><div class="upi-id" id="v-bkash"></div><div class="form-note">Reference: WITHER-RANK</div></div>
+      <div id="pd-nagad" class="payment-detail-box"><strong>Nagad (BD)</strong><br><div class="upi-id" id="v-nagad"></div></div>
+      <div id="pd-rocket" class="payment-detail-box"><strong>Rocket / DBBL (BD)</strong><br><div class="upi-id" id="v-rocket"></div></div>
+      <div id="pd-paypal" class="payment-detail-box"><strong>PayPal</strong><br><div class="form-note" style="margin:.4rem 0">Send to:</div><div class="upi-id" id="v-paypal"></div><div class="form-note">Note: "WITHER SMP Rank"</div></div>
+      <div id="pd-card" class="payment-detail-box">
+        <strong>Credit / Debit Card</strong>
+        <div class="form-group" style="margin-top:.7rem"><label style="font-size:.75rem">CARD NUMBER</label><input placeholder="1234 5678 9012 3456" maxlength="19" oninput="let v=this.value.replace(/\D/g,'').substring(0,16);this.value=v.replace(/(.{4})/g,'$1 ').trim()"></div>
+        <div class="form-row"><div class="form-group"><label style="font-size:.75rem">EXPIRY</label><input placeholder="MM/YY" maxlength="5"></div><div class="form-group"><label style="font-size:.75rem">CVV</label><input placeholder="123" maxlength="3"></div></div>
+        <div class="form-group"><label style="font-size:.75rem">CARDHOLDER NAME</label><input placeholder="Your Name"></div>
+      </div>
+      <div id="pd-bank" class="payment-detail-box"><strong>Bank Transfer</strong><div id="v-bank" style="margin:.5rem 0;font-size:.85rem;color:var(--orange);line-height:1.8"></div></div>
+      <div class="form-group" style="margin-top:1rem"><label>TRANSACTION ID / REFERENCE</label><input id="txnId" placeholder="Enter your payment transaction ID"><div class="form-note">Required for all methods except Card.</div></div>
+      <button class="btn btn-orange" id="buyBtn" style="width:100%;justify-content:center;margin-top:.5rem" onclick="submitOrder()">✅ SUBMIT ORDER</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//   FIREBASE CONFIG
+// ══════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyB2IYzK6PWbm4UClFGMlh4T_k3hG77-th4",
+  authDomain: "withersmp-21cf5.firebaseapp.com",
+  databaseURL: "https://withersmp-21cf5-default-rtdb.firebaseio.com",
+  projectId: "withersmp-21cf5",
+  storageBucket: "withersmp-21cf5.firebasestorage.app",
+  messagingSenderId: "388136023506",
+  appId: "1:388136023506:web:335d51116f6b4dcd61840b",
+  measurementId: "G-E4HRVVLTW3"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+// ══════════════════════════════════════════════
+//   STATE
+// ══════════════════════════════════════════════
+let ME = null;
+let BUY = {};
+let PAY_METHOD = '';
+let PAY = {
+  gpay:'', phonepe:'', paytm:'', bkash:'',
+  nagad:'', rocket:'', paypal:'',
+  bank:'', serverIp:'', serverPort:''
+};
+let pendingGoogleUser = null; // holds google user while waiting for MC username
+
+// ══════════════════════════════════════════════
+//   PARTICLES
+// ══════════════════════════════════════════════
+(function(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<25;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`left:${Math.random()*100}%;animation-duration:${6+Math.random()*14}s;animation-delay:${Math.random()*8}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px`;
+    c.appendChild(p);
+  }
+})();
+
+// ══════════════════════════════════════════════
+//   UTILS
+// ══════════════════════════════════════════════
+function toast(msg,type='info'){
+  const t=document.getElementById('toast'),d=document.createElement('div');
+  d.className='toast-item '+type; d.textContent=msg; t.appendChild(d);
+  setTimeout(()=>d.remove(),4000);
+}
+function setAlert(id,msg,type){
+  const el=document.getElementById(id);
+  if(el) el.innerHTML=`<div class="alert alert-${type}">${msg}</div>`;
+}
+function clearAlert(id){ const el=document.getElementById(id); if(el) el.innerHTML=''; }
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+function switchModal(a,b){ closeModal(a); openModal(b); }
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+}
+function switchTab(btn,id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+function hashPass(p){ return btoa(unescape(encodeURIComponent(p))); }
+function navDash(){
+  if(!ME){ openModal('loginModal'); return; }
+  renderDashboard(); showPage('dashboard');
+}
+function navAdmin(){
+  if(!ME||!['owner','dev'].includes(ME.role)){ toast('Admins only!','error'); return; }
+  renderAdmin(); showPage('admin');
+}
+function copyText(elId){
+  const el=document.getElementById(elId);
+  if(!el||!el.textContent||el.textContent==='Not set by admin'||el.textContent==='—') return;
+  navigator.clipboard.writeText(el.textContent).then(()=>toast('Copied! ✅','success'));
+}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('active'); });
+});
+function updateNav(){
+  const nav=document.getElementById('navUser');
+  const al=document.getElementById('adminNavLink');
+  if(ME){
+    const avatar = ME.photoURL
+      ? `<img src="${ME.photoURL}" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--orange)">`
+      : `<span style="font-size:1.1rem">👤</span>`;
+    nav.innerHTML=`<span style="color:var(--gray);font-size:.85rem;display:flex;align-items:center;gap:.4rem">${avatar}<strong style="color:var(--white)">${ME.username}</strong></span>
+      <button class="btn btn-outline btn-sm" onclick="navDash()">Dashboard</button>
+      <button class="btn btn-dark btn-sm" onclick="doLogout()">Logout</button>`;
+    al.style.display=['owner','dev'].includes(ME.role)?'':'none';
+  } else {
+    nav.innerHTML=`<button class="btn btn-outline btn-sm" onclick="openModal('loginModal')">Login</button>
+      <button class="btn btn-orange btn-sm" onclick="openModal('registerModal')">Register</button>`;
+    al.style.display='none';
+  }
+}
+function updateServerBar(){
+  const ip = PAY.serverIp || 'Not set by admin';
+  const port = PAY.serverPort || '—';
+  document.getElementById('displayIP').textContent = ip;
+  document.getElementById('displayPort').textContent = port;
+}
+
+// ══════════════════════════════════════════════
+//   GOOGLE AUTH
+// ══════════════════════════════════════════════
+async function doGoogleAuth(){
+  try {
+    const result = await auth.signInWithPopup(googleProvider);
+    const gUser = result.user;
+    // Check if user already exists in Firestore by email
+    const snap = await db.collection('users').where('email','==',gUser.email).limit(1).get();
+    if(!snap.empty){
+      // Existing user — log them in
+      ME = { id: snap.docs[0].id, ...snap.docs[0].data(), photoURL: gUser.photoURL };
+      sessionStorage.setItem('witherUID', ME.id);
+      closeModal('loginModal'); closeModal('registerModal');
+      updateNav();
+      toast('Welcome back, '+ME.username+'! ⚔️','success');
+      renderDashboard(); showPage('dashboard');
+    } else {
+      // New user — need MC username
+      pendingGoogleUser = gUser;
+      closeModal('loginModal'); closeModal('registerModal');
+      clearAlert('mcAlert');
+      document.getElementById('googleMC').value = '';
+      openModal('mcModal');
+    }
+  } catch(e){
+    toast('Google sign-in failed: '+e.message,'error');
+  }
+}
+
+async function finishGoogleSignup(){
+  const mc = document.getElementById('googleMC').value.trim();
+  if(!mc){ setAlert('mcAlert','Please enter your Minecraft username','danger'); return; }
+  const btn = document.getElementById('mcBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Creating account...';
+  try {
+    const gUser = pendingGoogleUser;
+    // Auto-generate username from Google display name
+    let username = (gUser.displayName||'Player').replace(/\s+/g,'').substring(0,20);
+    // Make sure username is unique
+    const uSnap = await db.collection('users').where('username','==',username).limit(1).get();
+    if(!uSnap.empty) username = username + Math.floor(Math.random()*9999);
+    // Check if first user
+    const countSnap = await db.collection('users').limit(1).get();
+    const isFirst = countSnap.empty;
+    const data = {
+      username, mcUsername: mc, email: gUser.email,
+      password: '', authProvider: 'google',
+      role: isFirst ? 'owner' : 'member',
+      photoURL: gUser.photoURL || '',
+      joined: new Date().toISOString(), ranksPurchased: []
+    };
+    const ref = await db.collection('users').add(data);
+    ME = { id: ref.id, ...data };
+    sessionStorage.setItem('witherUID', ME.id);
+    pendingGoogleUser = null;
+    closeModal('mcModal');
+    updateNav();
+    toast(isFirst ? '🎉 You are the OWNER! First ever account!' : 'Welcome to WITHER SMP, '+username+'! ⚔️','success');
+    renderDashboard(); showPage('dashboard');
+  } catch(e){
+    setAlert('mcAlert','Error: '+e.message,'danger');
+  }
+  btn.disabled=false; btn.innerHTML='⚔️ COMPLETE SETUP';
+}
+
+// ══════════════════════════════════════════════
+//   EMAIL AUTH
+// ══════════════════════════════════════════════
+async function doLogin(){
+  clearAlert('loginAlert');
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  if(!u||!p){ setAlert('loginAlert','Please fill in all fields','danger'); return; }
+  const btn=document.getElementById('loginBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try {
+    // Run BOTH username and email queries at the same time — parallel = 2x faster
+    const [byUser, byEmail] = await Promise.all([
+      db.collection('users').where('username','==',u).limit(1).get(),
+      db.collection('users').where('email','==',u).limit(1).get()
+    ]);
+    const snap = !byUser.empty ? byUser : byEmail;
+    if(snap.empty || snap.docs[0].data().password !== hashPass(p)){
+      setAlert('loginAlert','Wrong username/email or password','danger');
+      btn.disabled=false; btn.innerHTML='⚔️ LOGIN'; return;
+    }
+    const userData = snap.docs[0].data();
+    if(userData.authProvider==='google'){
+      setAlert('loginAlert','This account uses Google. Click "Continue with Google".','danger');
+      btn.disabled=false; btn.innerHTML='⚔️ LOGIN'; return;
+    }
+    ME = { id: snap.docs[0].id, ...userData };
+    sessionStorage.setItem('witherUID', ME.id);
+    closeModal('loginModal');
+    document.getElementById('loginUser').value='';
+    document.getElementById('loginPass').value='';
+    updateNav();
+    toast('Welcome back, '+ME.username+'! ⚔️','success');
+    renderDashboard(); showPage('dashboard');
+  } catch(e){ setAlert('loginAlert','Error: '+e.message,'danger'); }
+  btn.disabled=false; btn.innerHTML='⚔️ LOGIN';
+}
+
+async function doRegister(){
+  clearAlert('regAlert');
+  const u=document.getElementById('regUser').value.trim();
+  const mc=document.getElementById('regMC').value.trim();
+  const e=document.getElementById('regEmail').value.trim();
+  const p=document.getElementById('regPass').value;
+  const p2=document.getElementById('regPass2').value;
+  if(!u||!mc||!e||!p){ setAlert('regAlert','All fields are required','danger'); return; }
+  if(p!==p2){ setAlert('regAlert','Passwords do not match','danger'); return; }
+  if(p.length<6){ setAlert('regAlert','Min 6 characters for password','danger'); return; }
+  const btn=document.getElementById('regBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try {
+    // All 3 checks fire at the same time — parallel
+    const [uSnap, eSnap, countSnap] = await Promise.all([
+      db.collection('users').where('username','==',u).limit(1).get(),
+      db.collection('users').where('email','==',e).limit(1).get(),
+      db.collection('users').limit(1).get()
+    ]);
+    if(!uSnap.empty){ setAlert('regAlert','Username already taken','danger'); btn.disabled=false; btn.innerHTML='🔥 CREATE ACCOUNT'; return; }
+    if(!eSnap.empty){ setAlert('regAlert','Email already registered','danger'); btn.disabled=false; btn.innerHTML='🔥 CREATE ACCOUNT'; return; }
+    const isFirst = countSnap.empty;
+    const data = {
+      username: u, mcUsername: mc, email: e,
+      password: hashPass(p), authProvider: 'email',
+      role: isFirst ? 'owner' : 'member',
+      photoURL: '', joined: new Date().toISOString(), ranksPurchased: []
+    };
+    // Optimistic: set ME immediately and navigate — don't wait for Firestore write to finish
+    const tempId = 'temp_'+Date.now();
+    ME = { id: tempId, ...data };
+    sessionStorage.setItem('witherUID', tempId);
+    closeModal('registerModal');
+    ['regUser','regMC','regEmail','regPass','regPass2'].forEach(id=>document.getElementById(id).value='');
+    updateNav();
+    toast('Welcome to WITHER SMP, '+u+'! ⚔️','success');
+    renderDashboard(); showPage('dashboard');
+    // Now write to Firestore in background and update the real ID
+    const ref = await db.collection('users').add(data);
+    ME.id = ref.id;
+    sessionStorage.setItem('witherUID', ref.id);
+  } catch(e){
+    // If Firestore write failed, show error but user already sees dashboard
+    toast('Account save error: '+e.message,'error');
+  }
+  btn.disabled=false; btn.innerHTML='🔥 CREATE ACCOUNT';
+}
+
+function doLogout(){
+  ME=null; auth.signOut().catch(()=>{});
+  sessionStorage.removeItem('witherUID');
+  updateNav(); showPage('home');
+  toast('Logged out.','info');
+}
+
+// ══════════════════════════════════════════════
+//   BUY FLOW
+// ══════════════════════════════════════════════
+function openBuy(rank,price,key){
+  if(!ME){ toast('Please login first!','info'); openModal('loginModal'); return; }
+  BUY={rank,price,key};
+  document.getElementById('buyTitle').textContent='🛒 Purchase '+rank+' Rank';
+  document.getElementById('orderSummary').innerHTML=`
+    <h4>📋 Order Summary</h4>
+    <div class="order-row"><span>Rank</span><span><strong>${rank}</strong></span></div>
+    <div class="order-row"><span>Player</span><span id="mcPrev"><strong>${ME.mcUsername}</strong></span></div>
+    <div class="order-row order-total"><span>Total</span><span style="color:var(--orange)">₹${price}</span></div>`;
+  document.getElementById('buyMC').value=ME.mcUsername;
+  document.getElementById('buyMC').oninput=function(){
+    const el=document.getElementById('mcPrev');
+    if(el) el.innerHTML='<strong>'+(this.value||'—')+'</strong>';
+  };
+  document.getElementById('txnId').value='';
+  clearAlert('buyAlert');
+  PAY_METHOD='';
+  document.querySelectorAll('.payment-opt').forEach(x=>x.classList.remove('selected'));
+  document.querySelectorAll('.payment-detail-box').forEach(x=>x.classList.remove('active'));
+  ['gpay','phonepe','paytm','bkash','nagad','rocket','paypal'].forEach(k=>{
+    const el=document.getElementById('v-'+k); if(el) el.textContent=PAY[k]||'Not set';
+  });
+  document.getElementById('v-bank').innerHTML=(PAY.bank||'Not set').replace(/\n/g,'<br>');
+  openModal('buyModal');
+}
+function selPay(el,method){
+  PAY_METHOD=method;
+  document.querySelectorAll('.payment-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  document.querySelectorAll('.payment-detail-box').forEach(x=>x.classList.remove('active'));
+  const box=document.getElementById('pd-'+method);
+  if(box) box.classList.add('active');
+}
+async function submitOrder(){
+  const mc=document.getElementById('buyMC').value.trim();
+  const txn=document.getElementById('txnId').value.trim();
+  if(!mc){ setAlert('buyAlert','Enter your Minecraft username','danger'); return; }
+  if(!PAY_METHOD){ setAlert('buyAlert','Select a payment method','danger'); return; }
+  if(PAY_METHOD!=='card'&&!txn){ setAlert('buyAlert','Enter the transaction ID','danger'); return; }
+  const btn=document.getElementById('buyBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Submitting...';
+  try {
+    await db.collection('orders').add({
+      userId: ME.id, username: ME.username, mcUsername: mc,
+      rank: BUY.rank, rankKey: BUY.key, amount: BUY.price,
+      paymentMethod: PAY_METHOD, txnId: txn||('CARD-'+Date.now()),
+      status: 'pending', date: new Date().toISOString(), notes:''
+    });
+    closeModal('buyModal');
+    toast('✅ Order submitted! Awaiting verification.','success');
+    renderDashboard(); showPage('dashboard');
+  } catch(e){ setAlert('buyAlert','Error: '+e.message,'danger'); }
+  btn.disabled=false; btn.innerHTML='✅ SUBMIT ORDER';
+}
+
+// ══════════════════════════════════════════════
+//   DASHBOARD
+// ══════════════════════════════════════════════
+async function renderDashboard(){
+  if(!ME){ showPage('home'); return; }
+  const el=document.getElementById('dashContent');
+  el.innerHTML='<div class="loading-row"><span class="spinner"></span> Loading...</div>';
+  try {
+    const uSnap = await db.collection('users').doc(ME.id).get();
+    if(uSnap.exists){ ME={id:uSnap.id,...uSnap.data(),photoURL:ME.photoURL||uSnap.data().photoURL||''}; updateNav(); }
+    const isAdmin=['owner','dev'].includes(ME.role);
+    const oSnap = await db.collection('orders').where('userId','==',ME.id).get();
+    const myOrders = oSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    let allOrders=[], allUsers=[];
+    if(isAdmin){
+      const [ao,au]=await Promise.all([db.collection('orders').get(), db.collection('users').get()]);
+      allOrders=ao.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.date)-new Date(a.date));
+      allUsers=au.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.joined)-new Date(a.joined));
+    }
+    const avatarHTML = ME.photoURL
+      ? `<img src="${ME.photoURL}" style="width:70px;height:70px;border-radius:50%;border:2px solid var(--orange)">`
+      : `<div class="dash-avatar">☠️</div>`;
+
+    el.innerHTML=`
+      <div class="welcome-banner">
+        <h2>⚔️ Welcome back, ${ME.username}!</h2>
+        <p>🖤 You are a warrior of WITHER SMP – Season 1. <strong>Dominate or be dominated.</strong> 🔥</p>
+        <div style="margin-top:1rem;display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap">
+          <a href="https://discord.gg/3ph3cdsHzV" target="_blank" class="btn btn-discord btn-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.114 18.102.132 18.116a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            Join Discord
+          </a>
+          ${PAY.serverIp ? `<div style="background:rgba(255,106,0,0.1);border:1px solid var(--orange);border-radius:4px;padding:.3rem .8rem;font-family:monospace;font-size:.9rem;color:var(--orange)">🖥️ ${PAY.serverIp}${PAY.serverPort?':'+PAY.serverPort:''}</div>` : ''}
+        </div>
+      </div>
+      <div class="dash-header">
+        <div>${avatarHTML}</div>
+        <div class="dash-info">
+          <h2>${ME.username}</h2>
+          <p>🎮 MC: <strong>${ME.mcUsername}</strong> &nbsp;|&nbsp; 📧 ${ME.email}</p>
+          <span class="role-badge role-${ME.role}">${ME.role.toUpperCase()}</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap">
+          ${isAdmin?`<button class="btn btn-outline btn-sm" onclick="navAdmin()">⚙️ Admin Panel</button>`:''}
+          <button class="btn btn-dark btn-sm" onclick="doLogout()">🚪 Logout</button>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <h3>📊 Account Info</h3>
+          <div class="stat-row"><span>Username</span><span class="stat-val">${ME.username}</span></div>
+          <div class="stat-row"><span>MC Username</span><span class="stat-val">${ME.mcUsername}</span></div>
+          <div class="stat-row"><span>Email</span><span class="stat-val">${ME.email}</span></div>
+          <div class="stat-row"><span>Login Method</span><span class="stat-val">${ME.authProvider==='google'?'🔵 Google':'📧 Email'}</span></div>
+          <div class="stat-row"><span>Role</span><span class="stat-val"><span class="role-badge role-${ME.role}">${ME.role.toUpperCase()}</span></span></div>
+          <div class="stat-row"><span>Joined</span><span class="stat-val">${new Date(ME.joined).toLocaleDateString()}</span></div>
+          <div class="stat-row"><span>My Orders</span><span class="stat-val">${myOrders.length}</span></div>
+        </div>
+        <div class="dash-card">
+          <h3>📦 My Orders</h3>
+          ${myOrders.length===0
+            ?`<div class="empty-state"><div style="font-size:2rem">📦</div><p style="margin-top:.5rem">No orders yet.<br><a href="#" style="color:var(--orange)" onclick="showPage('home')">Browse Ranks →</a></p></div>`
+            :myOrders.map(o=>`<div class="order-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.3rem">
+                  <strong style="font-family:'Cinzel',serif">${o.rank}</strong>
+                  <span class="status-badge status-${o.status}">${o.status.toUpperCase()}</span>
+                </div>
+                <div style="font-size:.8rem;color:var(--gray);margin-top:.3rem">💰 ₹${o.amount} • 📅 ${new Date(o.date).toLocaleDateString()} • 🎮 ${o.mcUsername} • 💳 ${o.paymentMethod}</div>
+                <div style="font-size:.72rem;color:#555;font-family:monospace;margin-top:.2rem">ID: ${o.id} | TXN: ${o.txnId}</div>
+              </div>`).join('')}
+        </div>
+        ${isAdmin?`
+        <div class="dash-card" style="grid-column:1/-1">
+          <h3>📋 All Orders <span style="font-size:.75rem;font-family:'Rajdhani',sans-serif;font-weight:400;color:var(--gray)">(${allOrders.length} total)</span></h3>
+          ${makeOrderTable(allOrders,true)}
+        </div>
+        <div class="dash-card" style="grid-column:1/-1">
+          <h3>👥 All Users <span style="font-size:.75rem;font-family:'Rajdhani',sans-serif;font-weight:400;color:var(--gray)">(${allUsers.length} total)</span></h3>
+          ${makeUsersTable(allUsers)}
+        </div>`:''}
+      </div>`;
+  } catch(e){
+    el.innerHTML=`<div class="empty-state"><p style="color:var(--danger)">Error: ${e.message}</p></div>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+//   ADMIN
+// ══════════════════════════════════════════════
+async function renderAdmin(){
+  if(!ME||!['owner','dev'].includes(ME.role)){ showPage('home'); return; }
+  document.getElementById('adminStats').innerHTML='<div class="loading-row"><span class="spinner"></span></div>';
+  try {
+    const [aoSnap,auSnap]=await Promise.all([db.collection('orders').get(), db.collection('users').get()]);
+    const allOrders=aoSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const allUsers=auSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.joined)-new Date(a.joined));
+    const pending=allOrders.filter(o=>o.status==='pending');
+    const completed=allOrders.filter(o=>o.status==='completed');
+    const revenue=completed.reduce((s,o)=>s+Number(o.amount),0);
+    document.getElementById('adminStats').innerHTML=`
+      <div class="admin-stat"><div class="stat-num">${allUsers.length}</div><div class="stat-label">USERS</div></div>
+      <div class="admin-stat"><div class="stat-num">${allOrders.length}</div><div class="stat-label">ORDERS</div></div>
+      <div class="admin-stat"><div class="stat-num" style="color:var(--gold)">${pending.length}</div><div class="stat-label">PENDING</div></div>
+      <div class="admin-stat"><div class="stat-num" style="color:var(--success)">${completed.length}</div><div class="stat-label">COMPLETED</div></div>
+      <div class="admin-stat"><div class="stat-num" style="color:var(--success)">₹${revenue}</div><div class="stat-label">REVENUE</div></div>`;
+    document.getElementById('tab-pending').innerHTML=makeOrderTable(pending,true);
+    document.getElementById('tab-allorders').innerHTML=makeOrderTable(allOrders,true);
+    document.getElementById('tab-users').innerHTML=makeUsersTable(allUsers);
+    makeRolesTab(allUsers);
+    makePayTab();
+  } catch(e){
+    document.getElementById('adminStats').innerHTML=`<div class="empty-state"><p style="color:var(--danger)">Error: ${e.message}</p></div>`;
+  }
+}
+
+function makeOrderTable(orders,actions){
+  if(!orders.length) return '<div class="empty-state"><div style="font-size:2rem">📦</div><p>No orders.</p></div>';
+  return `<div class="table-wrap"><table>
+    <tr><th>ID</th><th>USER</th><th>MC USER</th><th>RANK</th><th>AMOUNT</th><th>PAYMENT</th><th>TXN ID</th><th>DATE</th><th>STATUS</th>${actions?'<th>ACTION</th>':''}</tr>
+    ${orders.map(o=>`<tr>
+      <td style="font-family:monospace;font-size:.7rem;color:var(--orange)">${o.id.substring(0,8)}...</td>
+      <td><strong>${o.username}</strong></td><td>${o.mcUsername}</td>
+      <td><strong>${o.rank}</strong></td>
+      <td style="color:var(--success);font-weight:700">₹${o.amount}</td>
+      <td style="font-size:.8rem">${o.paymentMethod}</td>
+      <td style="font-family:monospace;font-size:.7rem;color:var(--gray);max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.txnId}</td>
+      <td style="font-size:.8rem;white-space:nowrap">${new Date(o.date).toLocaleDateString()}</td>
+      <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+      ${actions?`<td style="white-space:nowrap">${o.status==='pending'
+        ?`<button class="btn btn-success btn-sm" onclick="approveOrder('${o.id}','${o.userId}','${o.rankKey}')">✅ Approve</button>
+           <button class="btn btn-danger btn-sm" onclick="cancelOrder('${o.id}')">❌</button>`
+        :'—'}</td>`:''}</tr>`).join('')}
+  </table></div>`;
+}
+
+function makeUsersTable(users){
+  if(!users.length) return '<div class="empty-state"><p>No users yet.</p></div>';
+  return `<div class="table-wrap"><table>
+    <tr><th>USERNAME</th><th>MC USERNAME</th><th>EMAIL</th><th>LOGIN</th><th>ROLE</th><th>JOINED</th><th>CHANGE ROLE</th></tr>
+    ${users.map(u=>`<tr>
+      <td><strong>${u.username}</strong></td><td>${u.mcUsername}</td>
+      <td style="font-size:.82rem">${u.email}</td>
+      <td style="font-size:.78rem">${u.authProvider==='google'?'🔵 Google':'📧 Email'}</td>
+      <td><span class="role-badge role-${u.role}">${u.role.toUpperCase()}</span></td>
+      <td style="font-size:.82rem">${new Date(u.joined).toLocaleDateString()}</td>
+      <td><select onchange="changeRole('${u.id}',this.value)" style="background:var(--card);border:1px solid var(--border);color:var(--white);border-radius:4px;padding:.25rem .5rem;font-family:'Rajdhani',sans-serif">
+        ${['owner','dev','mod','member','vip','pro','boss','elite','devil','custom'].map(r=>`<option value="${r}"${u.role===r?' selected':''}>${r.toUpperCase()}</option>`).join('')}
+      </select></td></tr>`).join('')}
+  </table></div>`;
+}
+
+function makeRolesTab(users){
+  const roles=[
+    {k:'owner',i:'👑',d:'Full access. First registered user.'},
+    {k:'dev',i:'💻',d:'Developer — admin panel access.'},
+    {k:'mod',i:'🛡️',d:'Moderator.'},
+    {k:'member',i:'⚔️',d:'Default for new registrations.'},
+    {k:'vip',i:'🛡️',d:'Paid rank – ₹39'},
+    {k:'pro',i:'🔥',d:'Paid rank – ₹139'},
+    {k:'boss',i:'👑',d:'Paid rank – ₹150'},
+    {k:'elite',i:'🌑',d:'Paid rank – ₹99'},
+    {k:'devil',i:'☠️',d:'Paid rank – ₹200'},
+    {k:'custom',i:'🌌',d:'Paid rank – ₹280'},
+  ];
+  document.getElementById('tab-roles').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem">
+      ${roles.map(r=>`<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem">
+        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.4rem">
+          <span style="font-size:1.4rem">${r.i}</span>
+          <span class="role-badge role-${r.k}">${r.k.toUpperCase()}</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--gray)">${r.d}</p>
+        <p style="font-size:.78rem;color:#555;margin-top:.4rem">Users: <strong style="color:var(--white)">${users.filter(u=>u.role===r.k).length}</strong></p>
+      </div>`).join('')}
+    </div>`;
+}
+
+function makePayTab(){
+  document.getElementById('tab-paysettings').innerHTML=`
+    <div class="server-ip-card">
+      <h3>🖥️ Minecraft Server Connection</h3>
+      <div class="ip-display">
+        <div>
+          <div style="font-size:.72rem;color:var(--gray);letter-spacing:2px;margin-bottom:.3rem">SERVER IP</div>
+          <input id="ps_serverIp" value="${PAY.serverIp||''}" placeholder="play.withersmp.net or IP address" style="background:var(--black);border:1px solid var(--border);border-radius:6px;padding:.7rem 1rem;color:var(--white);font-family:monospace;font-size:1rem;width:280px;text-align:center">
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:var(--gray);letter-spacing:2px;margin-bottom:.3rem">PORT</div>
+          <input id="ps_serverPort" value="${PAY.serverPort||''}" placeholder="25565" style="background:var(--black);border:1px solid var(--border);border-radius:6px;padding:.7rem 1rem;color:var(--orange);font-family:monospace;font-size:1rem;width:100px;text-align:center">
+        </div>
+      </div>
+      <button class="btn btn-orange btn-sm" style="margin-top:1rem" onclick="saveServerIP()">💾 Save Server Info</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem">
+      ${[['gpay','📱','Google Pay UPI ID'],['phonepe','💜','PhonePe UPI ID'],['paytm','🔵','Paytm UPI ID'],
+         ['bkash','🟠','bKash Number (BD)'],['nagad','🔴','Nagad Number (BD)'],['rocket','🚀','Rocket Number (BD)'],
+         ['paypal','🅿️','PayPal Email']].map(([k,ic,lb])=>`
+      <div class="dash-card">
+        <h3>${ic} ${lb}</h3>
+        <div class="form-group" style="margin-bottom:.5rem"><input type="text" id="ps_${k}" value="${PAY[k]||''}" placeholder="${lb}"></div>
+        <button class="btn btn-orange btn-sm" onclick="savePS('${k}')">💾 Save</button>
+      </div>`).join('')}
+      <div class="dash-card" style="grid-column:1/-1">
+        <h3>🏦 Bank Transfer Details</h3>
+        <div class="form-group"><textarea id="ps_bank" rows="4" placeholder="Bank name, Account No, IFSC, Name...">${PAY.bank||''}</textarea></div>
+        <button class="btn btn-orange btn-sm" onclick="savePS('bank')">💾 Save</button>
+      </div>
+    </div>`;
+}
+
+async function saveServerIP(){
+  const ip = document.getElementById('ps_serverIp').value.trim();
+  const port = document.getElementById('ps_serverPort').value.trim();
+  try {
+    await db.collection('config').doc('paySettings').set({serverIp:ip, serverPort:port},{merge:true});
+    PAY.serverIp=ip; PAY.serverPort=port;
+    updateServerBar();
+    toast('Server info saved! ✅','success');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+async function savePS(key){
+  const el=document.getElementById('ps_'+key);
+  if(!el) return;
+  const val=el.value.trim();
+  try {
+    await db.collection('config').doc('paySettings').set({[key]:val},{merge:true});
+    PAY[key]=val; toast('Saved!','success');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+async function approveOrder(orderId,userId,rankKey){
+  try {
+    await db.collection('orders').doc(orderId).update({status:'completed'});
+    const uSnap=await db.collection('users').doc(userId).get();
+    if(uSnap.exists){
+      const u=uSnap.data(); const updates={};
+      if(u.role==='member') updates.role=rankKey;
+      const rp=u.ranksPurchased||[];
+      if(!rp.includes(rankKey)){ rp.push(rankKey); updates.ranksPurchased=rp; }
+      if(Object.keys(updates).length) await db.collection('users').doc(userId).update(updates);
+    }
+    toast('Order approved! ✅','success');
+    const pg=document.querySelector('.page.active').id;
+    if(pg==='page-admin') renderAdmin(); else renderDashboard();
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+async function cancelOrder(orderId){
+  try {
+    await db.collection('orders').doc(orderId).update({status:'cancelled'});
+    toast('Order cancelled.','info');
+    const pg=document.querySelector('.page.active').id;
+    if(pg==='page-admin') renderAdmin(); else renderDashboard();
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+async function changeRole(userId,role){
+  try {
+    await db.collection('users').doc(userId).update({role});
+    toast('Role updated to '+role.toUpperCase(),'success');
+    renderAdmin();
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+// ══════════════════════════════════════════════
+//   BOOT
+// ══════════════════════════════════════════════
+async function boot(){
+  const bar=document.getElementById('bootBar');
+  const msg=document.getElementById('bootMsg');
+  bar.style.width='40%';
+  try {
+    const psSnap=await db.collection('config').doc('paySettings').get();
+    if(psSnap.exists) PAY={...PAY,...psSnap.data()};
+    updateServerBar();
+    bar.style.width='70%'; msg.textContent='Restoring session...';
+    const uid=sessionStorage.getItem('witherUID');
+    if(uid){
+      const uSnap=await db.collection('users').doc(uid).get();
+      if(uSnap.exists){
+        ME={id:uSnap.id,...uSnap.data()};
+        updateNav();
+        bar.style.width='100%';
+        await new Promise(r=>setTimeout(r,200));
+        document.getElementById('boot').style.display='none';
+        renderDashboard(); showPage('dashboard');
+        return;
+      }
+      sessionStorage.removeItem('witherUID');
+    }
+  } catch(e){ console.error('Boot error:',e); }
+  bar.style.width='100%';
+  await new Promise(r=>setTimeout(r,200));
+  document.getElementById('boot').style.display='none';
+  updateNav();
+}
+boot();
+</script>
+</body>
+</html>
